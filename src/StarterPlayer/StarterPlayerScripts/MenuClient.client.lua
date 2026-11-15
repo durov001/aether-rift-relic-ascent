@@ -23,7 +23,7 @@ local function new(className, props, parent)
 end
 
 local menuGui = new("ScreenGui", { Name = "AetherMenu", ResetOnSpawn = false,
-	IgnoreGuiInset = true }, player:WaitForChild("PlayerGui"))
+	IgnoreGuiInset = true, DisplayOrder = 10 }, player:WaitForChild("PlayerGui"))
 
 local function makeLabel(parent, name, size, position, text, textSize, color, font)
 	return new("TextLabel", { Name = name, Size = size, Position = position,
