@@ -40,7 +40,7 @@ local function makeButton(parent, name, size, position, text, color, textSize)
 end
 
 local menuFrame = new("Frame", { Name = "StartMenu", Size = UDim2.new(1, 0, 1, 0),
-	BackgroundColor3 = NAVY, BackgroundTransparency = 0.15, BorderSizePixel = 0 }, menuGui)
+	BackgroundColor3 = NAVY, BackgroundTransparency = 0, BorderSizePixel = 0 }, menuGui)
 
 makeLabel(menuFrame, "Title", UDim2.new(0, 700, 0, 60), UDim2.new(0.5, -350, 0, 70),
 	"AETHER RIFT", 48, CYAN, Enum.Font.GothamBlack)
@@ -49,31 +49,39 @@ makeLabel(menuFrame, "Subtitle", UDim2.new(0, 700, 0, 36), UDim2.new(0.5, -350, 
 makeLabel(menuFrame, "Tagline", UDim2.new(0, 700, 0, 28), UDim2.new(0.5, -350, 0, 166),
 	"Climb. Build. Roll. Rebirth.", 18, DIM)
 
-local howToPanel = new("Frame", { Name = "HowToPanel", Size = UDim2.new(0, 520, 0, 210),
-	Position = UDim2.new(0.5, -260, 0, 220), BackgroundColor3 = NAVY,
-	BackgroundTransparency = 0.25, BorderSizePixel = 0 }, menuFrame)
-new("UICorner", { CornerRadius = UDim.new(0, 12) }, howToPanel)
-new("UIStroke", { Color = CYAN, Transparency = 0.5, Thickness = 1.5 }, howToPanel)
+-- ATM (2026-11-15): top-1 "Lantern Drift" menu = 3 clean cards + one PLAY button,
+-- fully opaque so the 3D world never bleeds through. The old semi-transparent
+-- panel let the (now removed) billboards collide with the title text.
+local function makeCard(xOffset, accent, title, body)
+	local card = new("Frame", { Name = title .. "Card", Size = UDim2.new(0, 210, 0, 130),
+		Position = UDim2.new(0.5, xOffset, 0, 225), BackgroundColor3 = Color3.fromHex("1A2032"),
+		BorderSizePixel = 0 }, menuFrame)
+	new("UICorner", { CornerRadius = UDim.new(0, 12) }, card)
+	new("UIStroke", { Color = accent, Transparency = 0.35, Thickness = 1.5 }, card)
+	makeLabel(card, "CardTitle", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 10),
+		title, 20, accent, Enum.Font.GothamBlack)
+	local bodyLabel = makeLabel(card, "CardBody", UDim2.new(1, -20, 0, 80),
+		UDim2.new(0, 10, 0, 42), body, 13, WHITE)
+	bodyLabel.TextWrapped = true
+	bodyLabel.TextYAlignment = Enum.TextYAlignment.Top
+	return card
+end
 
-local howToText = table.concat({
-	"WASD — Move",
-	"SHIFT — Dash",
-	"CLICK the Aether Core — earn energy",
-	"Collect orbs — chain combos",
-	"Climb the 16-stage Sky Obby — reach the Summit",
-	"Claim a Tycoon plot — earn while you play",
-	"Roll Auras & Rebirth — multiply everything",
-}, "\n")
-local howToLabel = makeLabel(howToPanel, "HowToText", UDim2.new(1, -32, 1, -16),
-	UDim2.new(0, 16, 0, 8), howToText, 15, WHITE)
-howToLabel.TextXAlignment = Enum.TextXAlignment.Left
-howToLabel.TextYAlignment = Enum.TextYAlignment.Top
+makeCard(-331, CYAN, "CLIMB",
+	"Climb the 16-stage Sky Obby through 4 zones. Checkpoints pay +75, the Summit pays +600 Aether.")
+makeCard(-105, TEAL, "BUILD",
+	"Claim a Tycoon plot. Buy 5 pads (free-2,500 Aether) to earn up to +350 Aether every second.")
+makeCard(121, GOLD, "ROLL",
+	"Roll Auras (150 Aether) to multiply all gains up to 3.5x. Rebirth for a permanent boost.")
+
+makeLabel(menuFrame, "ControlsLine", UDim2.new(0, 760, 0, 26), UDim2.new(0.5, -380, 0, 378),
+	"WASD move  ·  SHIFT dash  ·  CLICK the Aether Core  ·  collect orbs to chain combos", 15, DIM)
 
 local deployButton = makeButton(menuFrame, "DeployButton", UDim2.new(0, 260, 0, 56),
-	UDim2.new(0.5, -130, 0, 460), "DEPLOY", GOLD, 22)
+	UDim2.new(0.5, -130, 0, 420), "DEPLOY", GOLD, 22)
 
 local victoryDim = new("Frame", { Name = "VictoryDim", Size = UDim2.new(1, 0, 1, 0),
-	BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.45,
+	BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.25,
 	BorderSizePixel = 0, Visible = false }, menuGui)
 local victoryPanel = new("Frame", { Name = "VictoryPanel", Size = UDim2.new(0, 440, 0, 300),
 	Position = UDim2.new(0.5, -220, 0.5, -150), BackgroundColor3 = NAVY,
