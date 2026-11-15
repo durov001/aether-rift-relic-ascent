@@ -58,6 +58,44 @@ obbyLabel.TextXAlignment = Enum.TextXAlignment.Left
 local obbyFill = new("Frame", { Name = "ObbyFill", Size = UDim2.new(0, 0, 0, 4),
 	Position = UDim2.new(0, 10, 1, -6), BackgroundColor3 = CYAN, BorderSizePixel = 0 }, obbyBar)
 
+-- Telemetry panel (2026-11-15, ATM top entries' "CHASSIS TELEMETRY" HUD):
+-- live stats with bars on the left, every value real (leaderstats + dash state).
+local telemetryPanel = makePanel("TelemetryPanel", UDim2.new(0, 210, 0, 196), UDim2.new(0, 16, 0, 120))
+local telemetryTitle = makeLabel(telemetryPanel, "TelemetryTitle", UDim2.new(1, -16, 0, 20),
+	UDim2.new(0, 8, 0, 6), 13, CYAN, Enum.Font.GothamBlack)
+telemetryTitle.Text = "TELEMETRY"
+telemetryTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local function makeTelemetryRow(y, labelText, valueColor)
+	local rowLabel = makeLabel(telemetryPanel, labelText .. "Label", UDim2.new(0, 110, 0, 18),
+		UDim2.new(0, 8, 0, y), 12, DIM)
+	rowLabel.Text = labelText
+	rowLabel.TextXAlignment = Enum.TextXAlignment.Left
+	local rowValue = makeLabel(telemetryPanel, labelText .. "Value", UDim2.new(0, 84, 0, 20),
+		UDim2.new(1, -92, 0, y - 1), 15, valueColor, Enum.Font.GothamBlack)
+	rowValue.TextXAlignment = Enum.TextXAlignment.Right
+	return rowValue
+end
+
+local function makeTelemetryBar(y, color)
+	local track = new("Frame", { Name = "BarTrack", Size = UDim2.new(1, -16, 0, 6),
+		Position = UDim2.new(0, 8, 0, y), BackgroundColor3 = Color3.fromHex("2A3350"),
+		BorderSizePixel = 0 }, telemetryPanel)
+	new("UICorner", { CornerRadius = UDim.new(0, 3) }, track)
+	local fill = new("Frame", { Name = "BarFill", Size = UDim2.new(0, 0, 1, 0),
+		BackgroundColor3 = color, BorderSizePixel = 0 }, track)
+	new("UICorner", { CornerRadius = UDim.new(0, 3) }, fill)
+	return fill
+end
+
+local telemetryAether = makeTelemetryRow(32, "AETHER", GOLD)
+local telemetryRate = makeTelemetryRow(60, "AETHER/SEC", TEAL)
+local telemetryStage = makeTelemetryRow(88, "STAGE", WHITE)
+local telemetryStageFill = makeTelemetryBar(110, CYAN)
+local telemetryRebirths = makeTelemetryRow(124, "REBIRTHS", WHITE)
+local telemetryDash = makeTelemetryRow(152, "DASH", CYAN)
+local telemetryDashFill = makeTelemetryBar(174, CYAN)
+
 local notifyFrame = makePanel("NotifyBanner", UDim2.new(0, 520, 0, 42), UDim2.new(0.5, -260, 0, 112))
 notifyFrame.Visible = false
 local notifyLabel = makeLabel(notifyFrame, "NotifyLabel", UDim2.new(1, -16, 1, 0), UDim2.new(0, 8, 0, 0), 15, WHITE)
@@ -106,6 +144,12 @@ local function refreshStats()
 	obbyLabel.Text = "Stage " .. stage .. "/16 — " .. zoneName
 	obbyFill.Size = UDim2.new(math.clamp(stage / 16, 0, 1), 0, 0, 4)
 	obbyFill.BackgroundColor3 = zoneColor
+	telemetryAether.Text = formatNumber(aetherValue.Value)
+	telemetryRate.Text = "+" .. formatNumber(aetherRateValue.Value) .. "/s"
+	telemetryStage.Text = stage .. "/16"
+	telemetryStageFill.Size = UDim2.new(math.clamp(stage / 16, 0, 1), 0, 1, 0)
+	telemetryStageFill.BackgroundColor3 = zoneColor
+	telemetryRebirths.Text = tostring(rebirthsValue.Value)
 end
 
 local function showNotification(message, color)
@@ -173,6 +217,9 @@ local function updateDashBar()
 	local isReady = ready >= 1
 	dashFill.BackgroundColor3 = isReady and CYAN or DIM
 	dashLabel.Text = isReady and "DASH READY" or string.format("DASH %.1fs", dashReadyAt - os.clock())
+	telemetryDashFill.Size = UDim2.new(ready, 0, 1, 0)
+	telemetryDashFill.BackgroundColor3 = isReady and CYAN or DIM
+	telemetryDash.Text = isReady and "READY" or string.format("%.1fs", dashReadyAt - os.clock())
 end
 
 aetherValue.Changed:Connect(refreshStats)
